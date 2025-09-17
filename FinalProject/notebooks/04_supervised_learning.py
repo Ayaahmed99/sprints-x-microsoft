@@ -1,7 +1,6 @@
-# 04_supervised_learning.py
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
@@ -22,10 +21,8 @@ TARGET_COL = "target"
 X = df.drop(columns=[TARGET_COL])
 y = df[TARGET_COL]
 
-# Train-test split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)
 
-# Define models with pipelines (scaling included)
 models = {
     "LogisticRegression": Pipeline([("scaler", StandardScaler()), ("clf", LogisticRegression(max_iter=1000, solver='liblinear'))]),
     "DecisionTree": Pipeline([("scaler", StandardScaler()), ("clf", DecisionTreeClassifier(random_state=42))]),
@@ -47,13 +44,12 @@ for name, pipeline in models.items():
     results[name] = {"accuracy": acc, "report": report, "roc_auc": roc_auc, "model": pipeline}
     print(name, "accuracy:", acc, "roc_auc:", roc_auc)
     print(classification_report(y_test, y_pred))
-    # confusion
+
     cm = confusion_matrix(y_test, y_pred)
     sns.heatmap(cm, annot=True, fmt='d')
     plt.title(f"{name} Confusion Matrix")
     plt.show()
 
-    # ROC curve
     if y_proba is not None:
         fpr, tpr, _ = roc_curve(y_test, y_proba)
         plt.figure()
@@ -65,7 +61,6 @@ for name, pipeline in models.items():
         plt.legend()
         plt.show()
 
-# Save baseline models
 for name, res in results.items():
     joblib.dump(res["model"], f"models/{name}_baseline.pkl")
 print("Saved baseline models to models/")
