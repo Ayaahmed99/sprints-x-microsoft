@@ -1,4 +1,3 @@
-# 05_unsupervised_learning.py
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
@@ -13,11 +12,9 @@ TARGET_COL = "target"
 X = df.drop(columns=[TARGET_COL])
 y = df[TARGET_COL]
 
-# scale features
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-# KMeans: elbow method
 sse = []
 k_range = range(2, 11)
 for k in k_range:
@@ -31,10 +28,8 @@ plt.ylabel('SSE')
 plt.title('Elbow Method For KMeans')
 plt.show()
 
-# silhouette scores
 sil_scores = []
 for k in k_range:
-    if k == 1: continue
     km = KMeans(n_clusters=k, random_state=42, n_init=10)
     labels = km.fit_predict(X_scaled)
     sil_scores.append(silhouette_score(X_scaled, labels))
@@ -45,14 +40,12 @@ plt.ylabel("Silhouette Score")
 plt.title("Silhouette by k")
 plt.show()
 
-# choose k=2 or based on elbow
 k = 2
 km = KMeans(n_clusters=k, random_state=42, n_init=20)
 labels_km = km.fit_predict(X_scaled)
 print("KMeans ARI vs true:", adjusted_rand_score(y, labels_km))
 print("KMeans silhouette:", silhouette_score(X_scaled, labels_km))
 
-# Hierarchical clustering dendrogram (sample for speed)
 sample_idx = np.random.choice(len(X_scaled), size=min(200, len(X_scaled)), replace=False)
 Z = linkage(X_scaled[sample_idx], method='ward')
 plt.figure(figsize=(10, 5))
