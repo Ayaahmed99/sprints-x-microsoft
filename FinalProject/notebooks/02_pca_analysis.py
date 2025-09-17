@@ -1,33 +1,29 @@
-# 02_pca_analysis.py (or notebook cells)
+# 02_pca_analysis.py
 import pandas as pd
 import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
+import joblib
+import os
 
 df = pd.read_csv("data/heart_disease_cleaned.csv")
 
-# Separate features/target
-TARGET_COL = "target"
+TARGET_COL = "num"
 X = df.drop(columns=[TARGET_COL])
 y = df[TARGET_COL]
 
-# Scale numeric data (PCA requires scaling)
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X.select_dtypes(include=[np.number]))
 
-# If X had categorical one-hots, they should be included. In this simplified flow we assume numeric features.
-pca = PCA(n_components=min(X_scaled.shape[1], 0.99), svd_solver='full')  # doesn't accept variance directly here; we'll compute components manually
-# Instead we compute explained variance for all components
 pca_full = PCA(n_components=X_scaled.shape[1], random_state=42)
 X_pca_full = pca_full.fit_transform(X_scaled)
 explained_ratio = pca_full.explained_variance_ratio_
 
-# cumulative variance plot
 cumvar = np.cumsum(explained_ratio)
 plt.figure(figsize=(8,5))
-plt.plot(np.arange(1,len(cumvar)+1), cumvar, marker='o')
+plt.plot(np.arange(1, len(cumvar)+1), cumvar, marker='o')
 plt.xlabel("Number of components")
 plt.ylabel("Cumulative explained variance")
 plt.grid(True)
@@ -36,11 +32,9 @@ plt.axhline(0.95, color='r', linestyle='--', label='95% variance')
 plt.legend()
 plt.show()
 
-# choose n components that explain >= 95% variance
 n_components_95 = np.searchsorted(cumvar, 0.95) + 1
 print("Components to explain 95% variance:", n_components_95)
 
-# 2D scatter using first 2 components
 pca2 = PCA(n_components=2, random_state=42)
 X_pca2 = pca2.fit_transform(X_scaled)
 
@@ -52,6 +46,5 @@ plt.title("PCA 2D projection (colored by target)")
 plt.legend(title=TARGET_COL)
 plt.show()
 
-# Save PCA model if you like
-import joblib
+os.makedirs("models", exist_ok=True)
 joblib.dump(pca2, "models/pca_2components.pkl")
