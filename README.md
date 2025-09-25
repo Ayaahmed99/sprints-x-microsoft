@@ -17,6 +17,3 @@ Model Optimization – tuning hyperparameters with GridSearchCV and RandomizedSe
 
 Model Deployment – saving the trained model as a .pkl file.
 
-Interactive UI (Optional) – deploying with Streamlit for real-time predictions.
-
-Remote Access (Optional) – using Ngrok to make the Streamlit app accessible online.
